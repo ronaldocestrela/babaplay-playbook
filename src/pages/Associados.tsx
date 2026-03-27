@@ -29,10 +29,7 @@ import {
   Users,
   UserCheck,
   UserX,
-  LogOut,
-  LayoutDashboard,
 } from "lucide-react";
-import logo from "@/assets/logo.png";
 
 const mockAssociados = [
   { id: 1, nome: "Carlos Silva", email: "carlos@email.com", telefone: "(11) 99999-1111", status: "ativo", posicao: "Atacante" },
@@ -68,32 +65,8 @@ const Associados = () => {
   const inativos = mockAssociados.filter((a) => a.status === "inativo").length;
 
   return (
-    <div className="min-h-screen flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-card border-r border-border flex flex-col">
-        <div className="p-6 border-b border-border">
-          <img src={logo} alt="BabaPlay" className="h-10" />
-        </div>
-        <nav className="flex-1 p-4 space-y-1">
-          <a href="#" className="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-medium">
-            <Users className="h-5 w-5" />
-            Associados
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary transition-colors">
-            <LayoutDashboard className="h-5 w-5" />
-            Dashboard
-          </a>
-        </nav>
-        <div className="p-4 border-t border-border">
-          <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary transition-colors w-full">
-            <LogOut className="h-5 w-5" />
-            Sair
-          </button>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <main className="flex-1 p-8">
+    <div className="min-h-full">
+      <div className="p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -195,7 +168,7 @@ const Associados = () => {
             </tbody>
           </table>
         </div>
-      </main>
+      </div>
 
       {/* Create/Edit Modal */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
