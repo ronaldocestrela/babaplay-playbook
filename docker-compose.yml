@@ -1,0 +1,16 @@
+# Frontend Vite/React servido por nginx.
+#
+# VITE_API_BASE_URL é embutido no bundle no momento do build: deve ser a URL que o
+# *browser* usa para chamar a API (ex.: http://localhost:5000 ou https://api.exemplo.com).
+# Ajuste no .env junto a este ficheiro ou exporte antes de `docker compose build`.
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:5000}
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    restart: unless-stopped
