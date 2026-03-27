@@ -69,7 +69,7 @@ const Login = () => {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center space-y-2">
             <img src={logo} alt="BabaPlay" className="h-16 mx-auto mb-4" />
@@ -164,12 +164,12 @@ const Login = () => {
                 )}
               />
 
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" className="rounded border-border accent-primary" />
                   <span className="text-muted-foreground">Lembrar-me</span>
                 </label>
-                <a href="#" className="text-primary hover:underline">
+                <a href="#" className="text-primary hover:underline shrink-0 sm:text-right">
                   Esqueceu a senha?
                 </a>
               </div>

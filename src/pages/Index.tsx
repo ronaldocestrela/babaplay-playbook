@@ -23,25 +23,25 @@ const Index = () => {
       </nav>
 
       {/* Hero */}
-      <section className="relative pt-16 min-h-[90vh] flex items-center">
+      <section className="relative pt-16 min-h-[85vh] sm:min-h-[90vh] flex items-center">
         <img src={heroBg} alt="" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40" />
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-2xl">
-            <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6">
+          <div className="max-w-2xl py-6 sm:py-0">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-4 sm:mb-6">
               Gerencie sua <span className="text-gradient">associação esportiva</span> com facilidade
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+            <p className="text-lg sm:text-xl text-muted-foreground mb-6 sm:mb-8 leading-relaxed">
               Controle associados, mensalidades e eventos em uma plataforma moderna e intuitiva.
             </p>
-            <div className="flex gap-4">
-              <Link to="/cadastro">
-                <Button size="lg" className="glow-primary gap-2 text-base h-13 px-8">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-md sm:max-w-none">
+              <Link to="/cadastro" className="w-full sm:w-auto">
+                <Button size="lg" className="glow-primary gap-2 text-base h-13 px-8 w-full sm:w-auto">
                   Começar agora <ArrowRight className="h-5 w-5" />
                 </Button>
               </Link>
-              <Link to="/associados">
-                <Button size="lg" variant="outline" className="text-base h-13 px-8">
+              <Link to="/associados" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="text-base h-13 px-8 w-full sm:w-auto">
                   Ver demo
                 </Button>
               </Link>
@@ -51,19 +51,19 @@ const Index = () => {
       </section>
 
       {/* Features */}
-      <section className="py-24 relative">
+      <section className="py-12 sm:py-16 md:py-24 relative">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4">Tudo que você precisa</h2>
-          <p className="text-muted-foreground text-center mb-16 max-w-lg mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3 sm:mb-4">Tudo que você precisa</h2>
+          <p className="text-muted-foreground text-center mb-8 sm:mb-12 md:mb-16 max-w-lg mx-auto text-sm sm:text-base">
             Ferramentas completas para a gestão da sua associação esportiva.
           </p>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
             {[
               { icon: Users, title: "Gestão de Associados", desc: "Cadastre, edite e acompanhe todos os membros da sua associação." },
               { icon: Shield, title: "Controle de Acesso", desc: "Defina permissões e níveis de acesso para cada tipo de usuário." },
               { icon: BarChart3, title: "Relatórios", desc: "Acompanhe métricas e gere relatórios detalhados da sua associação." },
             ].map((feature) => (
-              <div key={feature.title} className="glass-card p-8 hover:glow-primary transition-all duration-300 group">
+              <div key={feature.title} className="glass-card p-5 sm:p-8 hover:glow-primary transition-all duration-300 group">
                 <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
                   <feature.icon className="h-7 w-7 text-primary" />
                 </div>

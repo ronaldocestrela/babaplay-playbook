@@ -1,5 +1,9 @@
 import * as associatesService from "@/services/associates.service";
-import type { CreateAssociatePayload } from "@/api/api-response";
+import type {
+  CreateAssociatePayload,
+  UpdateAssociateActivePayload,
+  UpdateAssociatePayload,
+} from "@/api/api-response";
 import { toast } from "@/components/ui/sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -37,10 +41,23 @@ export function useCreateAssociate() {
 export function useUpdateAssociate() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: CreateAssociatePayload }) =>
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateAssociatePayload }) =>
       associatesService.updateAssociate(id, payload),
     onSuccess: (_data, vars) => {
       toast.success("Associado atualizado com sucesso");
+      void qc.invalidateQueries({ queryKey: associateKeys.all });
+      void qc.invalidateQueries({ queryKey: associateKeys.detail(vars.id) });
+    },
+  });
+}
+
+export function useSetAssociateActive() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateAssociateActivePayload }) =>
+      associatesService.setAssociateActive(id, payload),
+    onSuccess: (_data, vars) => {
+      toast.success(vars.payload.isActive ? "Associado ativado" : "Associado desativado");
       void qc.invalidateQueries({ queryKey: associateKeys.all });
       void qc.invalidateQueries({ queryKey: associateKeys.detail(vars.id) });
     },

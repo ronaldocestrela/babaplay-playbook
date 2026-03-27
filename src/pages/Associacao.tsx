@@ -97,7 +97,7 @@ const Associacao = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-full p-8">
+      <div className="min-h-full p-4 sm:p-6 md:p-8">
         <div className="mb-8 space-y-2">
           <Skeleton className="h-9 w-48" />
           <Skeleton className="h-4 w-72 max-w-full" />
@@ -109,7 +109,7 @@ const Associacao = () => {
 
   if (isError) {
     return (
-      <div className="min-h-full p-8">
+      <div className="min-h-full p-4 sm:p-6 md:p-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">Associação</h1>
           <p className="text-muted-foreground mt-1">Dados da associação do seu clube</p>
@@ -140,7 +140,7 @@ const Associacao = () => {
 
   return (
     <div className="min-h-full">
-      <div className="p-8">
+      <div className="p-4 sm:p-6 md:p-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Associação</h1>

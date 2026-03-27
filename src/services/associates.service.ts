@@ -1,4 +1,9 @@
-import type { Associate, CreateAssociatePayload } from "@/api/api-response";
+import type {
+  Associate,
+  CreateAssociatePayload,
+  UpdateAssociateActivePayload,
+  UpdateAssociatePayload,
+} from "@/api/api-response";
 import { api } from "@/api/axios-instance";
 
 export async function listAssociates(): Promise<Associate[]> {
@@ -15,7 +20,14 @@ export async function createAssociate(payload: CreateAssociatePayload): Promise<
 
 export async function updateAssociate(
   id: string,
-  payload: CreateAssociatePayload,
+  payload: UpdateAssociatePayload,
 ): Promise<Associate> {
   return api.put<Associate>(`/api/associates/${id}`, payload);
+}
+
+export async function setAssociateActive(
+  id: string,
+  payload: UpdateAssociateActivePayload,
+): Promise<Associate> {
+  return api.patch<Associate>(`/api/associates/${id}/active`, payload);
 }

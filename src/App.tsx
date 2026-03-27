@@ -11,6 +11,7 @@ import Associados from "./pages/Associados.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Associacao from "./pages/Associacao.tsx";
 import PlaceholderPage from "./pages/PlaceholderPage.tsx";
+import Posicoes from "./pages/Posicoes.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient({
@@ -44,7 +45,7 @@ const App = () => (
               <Route path="/mensalidades" element={<PlaceholderPage title="Mensalidades" />} />
               <Route path="/caixa" element={<PlaceholderPage title="Caixa" />} />
               <Route path="/categorias" element={<PlaceholderPage title="Categorias" />} />
-              <Route path="/posicoes" element={<PlaceholderPage title="Posições" />} />
+              <Route path="/posicoes" element={<Posicoes />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

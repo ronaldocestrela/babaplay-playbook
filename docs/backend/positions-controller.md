@@ -10,7 +10,7 @@ Envelope: [api-conventions.md](api-conventions.md).
 
 ## GET /api/positions
 
-Lista posições ordenadas por `sortOrder`, depois `name`.
+Lista posições ordenadas alfabeticamente por `name`.
 
 ### Resposta 200
 
@@ -21,7 +21,6 @@ Lista posições ordenadas por `sortOrder`, depois `name`.
     {
       "id": "string",
       "name": "string",
-      "sortOrder": 1,
       "createdAt": "2026-01-01T12:00:00Z",
       "updatedAt": null
     }
@@ -39,8 +38,7 @@ Lista posições ordenadas por `sortOrder`, depois `name`.
 
 ```json
 {
-  "name": "string",
-  "sortOrder": 0
+  "name": "string"
 }
 ```
 
@@ -51,3 +49,47 @@ Posição criada (mesmo formato de um item do GET).
 ### Resposta 400
 
 Nome obrigatório.
+
+---
+
+## PUT /api/positions/{id}
+
+Atualiza o nome de uma posição existente.
+
+### Payload
+
+```json
+{
+  "name": "string"
+}
+```
+
+### Resposta 200
+
+Posição atualizada (mesmo formato de um item do GET).
+
+### Resposta 400
+
+Nome obrigatório.
+
+### Resposta 404
+
+Posição não encontrada.
+
+---
+
+## DELETE /api/positions/{id}
+
+Remove uma posição.
+
+### Resposta 200
+
+Eliminação bem-sucedida (envelope vazio `data: null`).
+
+### Resposta 404
+
+Posição não encontrada.
+
+### Resposta 409
+
+A posição está atribuída a um ou mais associados; remova primeiro as atribuições.

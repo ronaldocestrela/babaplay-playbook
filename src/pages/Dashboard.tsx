@@ -3,7 +3,7 @@ import { Users } from "lucide-react";
 
 const Dashboard = () => {
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 md:p-8">
       <h1 className="text-3xl font-bold tracking-tight mb-2">Painel</h1>
       <p className="text-muted-foreground mb-8">Bem-vindo de volta. Escolha uma área para continuar ou use o menu à esquerda.</p>
 

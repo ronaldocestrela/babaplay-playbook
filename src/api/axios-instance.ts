@@ -15,7 +15,8 @@ function formatApiMessage(body: ApiResponse<unknown>): string {
   return parts.length ? parts.join(" — ") : "Erro desconhecido.";
 }
 
-function extractErrorMessage(data: unknown): string {
+/** Mensagem legível a partir do corpo de erro HTTP (reutilizável fora do interceptor). */
+export function extractErrorMessage(data: unknown): string {
   if (!data || typeof data !== "object") {
     return "Ocorreu um erro. Tente novamente.";
   }
@@ -29,6 +30,9 @@ function extractErrorMessage(data: unknown): string {
   }
   return "Ocorreu um erro. Tente novamente.";
 }
+
+/** Config extra suportada pelo cliente (além de AxiosRequestConfig). */
+export type ApiRequestConfig = AxiosRequestConfig & { skipErrorToast?: boolean };
 
 const baseURL = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ?? "";
 
@@ -79,12 +83,15 @@ apiClient.interceptors.response.use(
   (error: AxiosError<unknown>) => {
     const status = error.response?.status;
     const data = error.response?.data;
+    const skipToast = Boolean((error.config as ApiRequestConfig | undefined)?.skipErrorToast);
 
-    const message = isAxiosError(error)
-      ? extractErrorMessage(data) || error.message || "Ocorreu um erro. Tente novamente."
-      : "Ocorreu um erro. Tente novamente.";
+    if (!skipToast) {
+      const message = isAxiosError(error)
+        ? extractErrorMessage(data) || error.message || "Ocorreu um erro. Tente novamente."
+        : "Ocorreu um erro. Tente novamente.";
 
-    toast.error(message);
+      toast.error(message);
+    }
 
     if (status === 401) {
       clearSessionAuth();
@@ -99,15 +106,18 @@ apiClient.interceptors.response.use(
 
 /** Helpers que devolvem diretamente `data` já extraído do envelope */
 export const api = {
-  get: <T>(url: string, config?: AxiosRequestConfig) =>
+  get: <T>(url: string, config?: ApiRequestConfig) =>
     apiClient.get<T>(url, config).then((res) => res.data as T),
 
-  post: <T>(url: string, body?: unknown, config?: AxiosRequestConfig) =>
+  post: <T>(url: string, body?: unknown, config?: ApiRequestConfig) =>
     apiClient.post<T>(url, body, config).then((res) => res.data as T),
 
-  put: <T>(url: string, body?: unknown, config?: AxiosRequestConfig) =>
+  put: <T>(url: string, body?: unknown, config?: ApiRequestConfig) =>
     apiClient.put<T>(url, body, config).then((res) => res.data as T),
 
-  delete: <T>(url: string, config?: AxiosRequestConfig) =>
+  patch: <T>(url: string, body?: unknown, config?: ApiRequestConfig) =>
+    apiClient.patch<T>(url, body, config).then((res) => res.data as T),
+
+  delete: <T>(url: string, config?: ApiRequestConfig) =>
     apiClient.delete<T>(url, config).then((res) => res.data as T),
 };

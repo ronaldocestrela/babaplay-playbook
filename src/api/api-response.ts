@@ -78,23 +78,23 @@ export interface CreatePlanPayload {
 export interface Position {
   id: string;
   name: string;
-  sortOrder: number;
+  /** Presente na API de associados; opcional para compatibilidade com respostas antigas */
+  sortOrder?: number | null;
   createdAt: string;
   updatedAt: string | null;
 }
 
 export interface CreatePositionPayload {
   name: string;
-  sortOrder: number;
 }
 
-export interface AssociatePositionLink {
-  id: string;
-  associateId: string;
+/** Mesmo formato da criação (PUT /api/positions/:id) */
+export type UpdatePositionPayload = CreatePositionPayload;
+
+/** Posição projetada no DTO de associado (GET /api/associates); sem entidades EF aninhadas. */
+export interface AssociatePositionItem {
   positionId: string;
-  position: Position;
-  createdAt: string;
-  updatedAt: string | null;
+  positionName: string;
 }
 
 export interface Associate {
@@ -103,7 +103,9 @@ export interface Associate {
   email: string | null;
   phone: string | null;
   userId: string | null;
-  positions: AssociatePositionLink[];
+  /** Associados inativos não podem fazer login (ver auth-controller). */
+  isActive: boolean;
+  positions: AssociatePositionItem[];
   createdAt: string;
   updatedAt: string | null;
 }
@@ -113,6 +115,14 @@ export interface CreateAssociatePayload {
   email: string | null;
   phone: string | null;
   positionIds: string[];
+}
+
+/** Mesmo formato da criação (PUT /api/associates/:id) */
+export type UpdateAssociatePayload = CreateAssociatePayload;
+
+/** PATCH /api/associates/:id/active */
+export interface UpdateAssociateActivePayload {
+  isActive: boolean;
 }
 
 export interface Association {

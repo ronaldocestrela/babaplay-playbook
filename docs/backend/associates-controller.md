@@ -12,7 +12,7 @@ Regra: cada associado deve ter **entre 1 e 3** `positionIds` distintos.
 
 ## GET /api/associates
 
-Lista associados com posições incluídas (conforme query EF).
+Lista associados ordenados por `name`, com posições projetadas (DTO `AssociateResponse`; sem entidades EF aninhadas).
 
 ### Resposta 200
 
@@ -26,20 +26,11 @@ Lista associados com posições incluídas (conforme query EF).
       "email": "string | null",
       "phone": "string | null",
       "userId": "string | null",
+      "isActive": true,
       "positions": [
         {
-          "id": "string",
-          "associateId": "string",
           "positionId": "string",
-          "position": {
-            "id": "string",
-            "name": "Goleiro",
-            "sortOrder": 1,
-            "createdAt": "2026-01-01T12:00:00Z",
-            "updatedAt": null
-          },
-          "createdAt": "2026-01-01T12:00:00Z",
-          "updatedAt": null
+          "positionName": "Goleiro"
         }
       ],
       "createdAt": "2026-01-01T12:00:00Z",
@@ -50,8 +41,6 @@ Lista associados com posições incluídas (conforme query EF).
   "errors": null
 }
 ```
-
-*(A forma exacta de aninhamento pode incluir `associate: null` nos links — ignorar no UI se vier.)*
 
 ---
 
@@ -103,3 +92,25 @@ Associado atualizado.
 ### Resposta 404 / 400
 
 Não encontrado ou validação de posições.
+
+---
+
+## PATCH /api/associates/{id}/active
+
+Ativa ou desativa o associado (`isActive`). Associados **inativos** não podem fazer login (ver [auth-controller.md](auth-controller.md)).
+
+### Payload
+
+```json
+{
+  "isActive": false
+}
+```
+
+### Resposta 200
+
+Associado atualizado (mesma estrutura que GET).
+
+### Resposta 404
+
+Associado não encontrado.
