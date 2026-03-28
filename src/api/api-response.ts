@@ -227,17 +227,20 @@ export interface MembershipPayment {
 export interface Category {
   id: string;
   name: string;
+  type: 0 | 1;
   createdAt: string;
   updatedAt: string | null;
 }
 
 export interface CreateCategoryPayload {
   name: string;
+  type: 0 | 1;
 }
 
 export interface CashEntry {
   id: string;
   amount: number;
+  currentBalance: number;
   categoryId: string;
   description: string | null;
   entryDate: string;

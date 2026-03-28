@@ -1,6 +1,7 @@
 import * as membershipsService from "@/services/memberships.service";
 import type { CreateMembershipPayload, MembershipPaymentPayload } from "@/api/api-response";
 import { toast } from "@/components/ui/sonner";
+import { cashEntryKeys } from "@/hooks/use-cash-entries";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const membershipKeys = {
@@ -42,6 +43,7 @@ export function useAddMembershipPayment() {
     onSuccess: (_data, vars) => {
       toast.success("Pagamento registado com sucesso");
       void qc.invalidateQueries({ queryKey: membershipKeys.byAssociate(vars.associateId) });
+      void qc.invalidateQueries({ queryKey: cashEntryKeys.all });
     },
   });
 }
