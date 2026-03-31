@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAssociates } from "@/hooks/use-associates";
 import { useCreateCheckInSession, useCreateCheckIn, useSessionCheckIns } from "@/hooks/use-checkins";
+import { useAuth } from "@/contexts/auth-context";
 
 const checkInSchema = z.object({
   associateId: z.string().min(1, "Associado obrigatório"),
@@ -19,6 +20,7 @@ const checkInSchema = z.object({
 type CheckInFormValues = z.infer<typeof checkInSchema>;
 
 export default function CheckIns() {
+  const auth = useAuth();
   const { data: associates, isLoading: associatesLoading, isError: associatesError, error: associatesErrorObj } = useAssociates();
   const [sessionId, setSessionId] = useState<string | null>(null);
   const sessionCheckIns = useSessionCheckIns(sessionId || undefined);
@@ -32,6 +34,10 @@ export default function CheckIns() {
   });
 
   const incoming = useMemo(() => sessionCheckIns.data ?? [], [sessionCheckIns.data]);
+  const myAssociates = useMemo(
+    () => (associates ?? []).filter((associate) => associate.userId === auth.userId),
+    [associates, auth.userId],
+  );
 
   if (associatesLoading) {
     return (
@@ -64,7 +70,21 @@ export default function CheckIns() {
   async function onSubmit(values: CheckInFormValues) {
     if (!sessionId) return;
 
-    await createCheckIn.mutateAsync({ sessionId, associateId: values.associateId });
+    const selectedAssociate = (associates ?? []).find((associate) => associate.id === values.associateId);
+    if (!selectedAssociate || selectedAssociate.userId !== auth.userId) {
+      form.setError("associateId", {
+        type: "manual",
+        message: "Voce so pode registrar check-in para o seu proprio associado.",
+      });
+      return;
+    }
+
+    await createCheckIn.mutateAsync({
+      sessionId,
+      associateId: values.associateId,
+      currentUserId: auth.userId,
+      associateOwnerUserId: selectedAssociate.userId,
+    });
     form.reset();
   }
 
@@ -85,6 +105,16 @@ export default function CheckIns() {
       </div>
 
       <div className="mb-6 max-w-sm">
+        {myAssociates.length === 0 && (
+          <Alert className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Sem associado vinculado</AlertTitle>
+            <AlertDescription>
+              O seu utilizador nao possui associado vinculado. Apenas o proprio associado pode fazer check-in.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
             <FormField
@@ -99,7 +129,7 @@ export default function CheckIns() {
                         <SelectValue placeholder="Selecione associado" />
                       </SelectTrigger>
                       <SelectContent>
-                        {associates?.map((associate: Associate) => (
+                        {myAssociates.map((associate: Associate) => (
                           <SelectItem key={associate.id} value={associate.id}>
                             {associate.name}
                           </SelectItem>
@@ -111,7 +141,7 @@ export default function CheckIns() {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={!sessionId || createCheckIn.isPending}>
+            <Button type="submit" disabled={!sessionId || createCheckIn.isPending || myAssociates.length === 0}>
               {createCheckIn.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Registrar check-in"}
             </Button>
           </form>

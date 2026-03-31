@@ -42,6 +42,12 @@ Sem corpo.
 
 Regista check-in de um associado na sessão.
 
+### Regras de autorizacao
+
+- Cada utilizador so pode registar o seu proprio check-in.
+- O servidor valida que o `associateId` pertence ao `userId` do token JWT.
+- Tentativas de terceiros devem retornar **403 Forbidden**.
+
 ### Payload
 
 ```json
@@ -76,6 +82,10 @@ Sessão não encontrada.
 ### Resposta 409
 
 Associado já fez check-in hoje (regra de negócio).
+
+### Resposta 403
+
+Utilizador tentou registar check-in para um associado de terceiro.
 
 ---
 
