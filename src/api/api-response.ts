@@ -17,6 +17,7 @@ export interface AuthData {
 export type UserType = 0 | 1 | 2;
 
 export interface RegisterPayload {
+  name: string;
   email: string;
   password: string;
   userType?: UserType;

@@ -20,7 +20,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Eye, EyeOff, Mail, Lock, Building2, Check, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Building2, Check, Loader2, User } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
 import logo from "@/assets/logo.png";
 import { useState } from "react";
@@ -45,6 +45,7 @@ const step1Schema = z.object({
 
 const step3Schema = z
   .object({
+    name: z.string().min(1, "Indique o seu nome"),
     email: z.string().min(1, "Indique o e-mail").email("E-mail inválido"),
     password: z.string().min(1, "Indique a senha"),
     confirmPassword: z.string().min(1, "Confirme a senha"),
@@ -122,7 +123,7 @@ const Cadastro = () => {
 
   const form3 = useForm<Step3Values>({
     resolver: zodResolver(step3Schema),
-    defaultValues: { email: "", password: "", confirmPassword: "" },
+    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
   });
 
   async function onSubmitStep1(values: Step1Values) {
@@ -154,6 +155,7 @@ const Cadastro = () => {
     if (!wizardData) return;
     setTenantSubdomain(wizardData.tenantSubdomain);
     await registerMutation.mutateAsync({
+      name: values.name.trim(),
       email: values.email.trim(),
       password: values.password,
       userType: REGISTER_USER_TYPE,
@@ -361,6 +363,28 @@ const Cadastro = () => {
           {step === 3 && (
             <Form {...form3}>
               <form onSubmit={form3.handleSubmit(onSubmitStep3)} className="space-y-4">
+                <FormField
+                  control={form3.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome completo</FormLabel>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="ex.: João Silva"
+                            className="pl-10 h-12 bg-secondary border-border"
+                            autoComplete="name"
+                            {...field}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form3.control}
                   name="email"
