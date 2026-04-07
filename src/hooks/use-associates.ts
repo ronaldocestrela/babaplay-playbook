@@ -1,5 +1,6 @@
 import * as associatesService from "@/services/associates.service";
 import type {
+  CreateAssociateInvitationPayload,
   CreateAssociatePayload,
   UpdateAssociateActivePayload,
   UpdateAssociatePayload,
@@ -10,6 +11,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 export const associateKeys = {
   all: ["associates"] as const,
   detail: (id: string) => ["associates", id] as const,
+  invitation: (token: string) => ["associates", "invitation", token] as const,
 };
 
 export function useAssociates() {
@@ -61,5 +63,21 @@ export function useSetAssociateActive() {
       void qc.invalidateQueries({ queryKey: associateKeys.all });
       void qc.invalidateQueries({ queryKey: associateKeys.detail(vars.id) });
     },
+  });
+}
+
+export function useCreateAssociateInvitation() {
+  return useMutation({
+    mutationFn: (payload: CreateAssociateInvitationPayload) =>
+      associatesService.createAssociateInvitation(payload),
+  });
+}
+
+export function useValidateAssociateInvitation(token: string | undefined) {
+  return useQuery({
+    queryKey: associateKeys.invitation(token ?? ""),
+    queryFn: () => associatesService.validateAssociateInvitation(token!),
+    enabled: Boolean(token),
+    retry: false,
   });
 }

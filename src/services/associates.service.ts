@@ -1,5 +1,8 @@
 import type {
   Associate,
+  AssociateInvitationCreated,
+  AssociateInvitationValidation,
+  CreateAssociateInvitationPayload,
   CreateAssociatePayload,
   UpdateAssociateActivePayload,
   UpdateAssociatePayload,
@@ -30,4 +33,23 @@ export async function setAssociateActive(
   payload: UpdateAssociateActivePayload,
 ): Promise<Associate> {
   return api.patch<Associate>(`/api/associates/${id}/active`, payload);
+}
+
+export async function createAssociateInvitation(
+  payload: CreateAssociateInvitationPayload,
+): Promise<AssociateInvitationCreated> {
+  return api.post<AssociateInvitationCreated>("/api/associates/invitations", payload);
+}
+
+/** Validação anónima do convite — sem JWT; tenant via header/subdomínio. */
+export async function validateAssociateInvitation(
+  token: string,
+): Promise<AssociateInvitationValidation> {
+  const encoded = encodeURIComponent(token);
+  return api.get<AssociateInvitationValidation>(`/api/associates/invitations/${encoded}`, {
+    skipAuth: true,
+    skipEnvelopeErrorToast: true,
+    skipAuthRedirect: true,
+    skipErrorToast: true,
+  });
 }

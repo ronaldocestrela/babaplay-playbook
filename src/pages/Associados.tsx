@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
   AlertTriangle,
+  Copy,
   Edit,
   Loader2,
+  MailPlus,
   Plus,
   Power,
   PowerOff,
@@ -15,7 +17,9 @@ import {
   Users,
   UserX,
 } from "lucide-react";
-import type { Associate } from "@/api/api-response";
+import type { Associate, AssociateInvitationCreated } from "@/api/api-response";
+import { useAuth } from "@/contexts/auth-context";
+import { toast } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -50,21 +54,20 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   useCreateAssociate,
+  useCreateAssociateInvitation,
   useUpdateAssociate,
   useAssociates,
   useSetAssociateActive,
 } from "@/hooks/use-associates";
 import { usePositions } from "@/hooks/use-positions";
 
+function canManageInvitations(roles: string[]): boolean {
+  return roles.some((r) => r === "Admin" || r === "Manager");
+}
+
 const associateFormSchema = z.object({
   name: z.string().min(1, "Nome obrigatório"),
-  email: z
-    .string()
-    .trim()
-    .refine(
-      (val) => val === "" || z.string().email().safeParse(val).success,
-      "E-mail inválido",
-    ),
+  email: z.string().trim().min(1, "E-mail obrigatório").email("E-mail inválido"),
   phone: z.string().trim(),
   positionIds: z
     .array(z.string())
@@ -101,6 +104,8 @@ function sortAssociatePositionItems<T extends { positionId: string; positionName
 }
 
 const Associados = () => {
+  const auth = useAuth();
+  const canInvite = canManageInvitations(auth.roles);
   const {
     data: associates,
     isLoading: associatesLoading,
@@ -121,8 +126,13 @@ const Associados = () => {
   const createMutation = useCreateAssociate();
   const updateMutation = useUpdateAssociate();
   const setActiveMutation = useSetAssociateActive();
+  const createInviteMutation = useCreateAssociateInvitation();
 
   const [formOpen, setFormOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteSingleUse, setInviteSingleUse] = useState(false);
+  const [inviteResult, setInviteResult] = useState<AssociateInvitationCreated | null>(null);
   const [editingAssociate, setEditingAssociate] = useState<Associate | null>(null);
   const [search, setSearch] = useState("");
   const [activeConfirm, setActiveConfirm] = useState<{
@@ -204,7 +214,7 @@ const Associados = () => {
     const phoneTrim = values.phone.trim();
     const payload = {
       name: values.name.trim(),
-      email: emailTrim === "" ? null : emailTrim,
+      email: emailTrim,
       phone: phoneTrim === "" ? null : phoneTrim,
       positionIds: values.positionIds,
     };
@@ -229,6 +239,27 @@ const Associados = () => {
   function handleEdit(associate: Associate) {
     setEditingAssociate(associate);
     setFormOpen(true);
+  }
+
+  function resetInviteDialog() {
+    setInviteEmail("");
+    setInviteSingleUse(false);
+    setInviteResult(null);
+  }
+
+  async function onSubmitInvite(e: FormEvent) {
+    e.preventDefault();
+    const emailTrim = inviteEmail.trim();
+    try {
+      const data = await createInviteMutation.mutateAsync({
+        email: emailTrim === "" ? undefined : emailTrim,
+        isSingleUse: inviteSingleUse,
+      });
+      setInviteResult(data);
+      toast.success("Convite criado");
+    } catch {
+      // Erro tratado pelo interceptor
+    }
   }
 
   async function confirmActiveToggle() {
@@ -307,21 +338,37 @@ const Associados = () => {
             <h1 className="text-3xl font-bold">Associados</h1>
             <p className="text-muted-foreground mt-1">Gerencie os membros da sua associação</p>
           </div>
-          <Button
-            onClick={handleNew}
-            className="glow-primary gap-2 shrink-0 w-full sm:w-auto"
-            disabled={positionsError || (positions?.length ?? 0) === 0}
-            title={
-              positionsError
-                ? "Não foi possível carregar as posições"
-                : (positions?.length ?? 0) === 0
-                  ? "Cadastre posições em Posições antes de adicionar associados"
-                  : undefined
-            }
-          >
-            <Plus className="h-4 w-4" />
-            Novo Associado
-          </Button>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end w-full sm:w-auto">
+            {canInvite && (
+              <Button
+                type="button"
+                variant="outline"
+                className="gap-2 shrink-0 w-full sm:w-auto"
+                onClick={() => {
+                  resetInviteDialog();
+                  setInviteOpen(true);
+                }}
+              >
+                <MailPlus className="h-4 w-4" />
+                Convidar
+              </Button>
+            )}
+            <Button
+              onClick={handleNew}
+              className="glow-primary gap-2 shrink-0 w-full sm:w-auto"
+              disabled={positionsError || (positions?.length ?? 0) === 0}
+              title={
+                positionsError
+                  ? "Não foi possível carregar as posições"
+                  : (positions?.length ?? 0) === 0
+                    ? "Cadastre posições em Posições antes de adicionar associados"
+                    : undefined
+              }
+            >
+              <Plus className="h-4 w-4" />
+              Novo Associado
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 sm:mb-8">
@@ -530,8 +577,8 @@ const Associados = () => {
             <DialogTitle>{editingAssociate ? "Editar Associado" : "Novo Associado"}</DialogTitle>
             <DialogDescription>
               {editingAssociate
-                ? "Atualize os dados e as posições (1 a 3)."
-                : "Preencha os dados e escolha entre 1 e 3 posições distintas."}
+                ? "Atualize os dados e as posições (1 a 3). O e-mail é obrigatório."
+                : "O e-mail é obrigatório (único no tenant); o servidor cria o utilizador com a função de associado. Escolha entre 1 e 3 posições distintas."}
             </DialogDescription>
           </DialogHeader>
 
@@ -591,7 +638,7 @@ const Associados = () => {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>E-mail</FormLabel>
+                      <FormLabel>E-mail (obrigatório)</FormLabel>
                       <FormControl>
                         <Input
                           type="email"
@@ -692,6 +739,102 @@ const Associados = () => {
                 </DialogFooter>
               </form>
             </Form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={inviteOpen}
+        onOpenChange={(open) => {
+          setInviteOpen(open);
+          if (!open) resetInviteDialog();
+        }}
+      >
+        <DialogContent className="bg-card border-border sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Convite para novo associado</DialogTitle>
+            <DialogDescription>
+              Gera um link com token e expiração. O e-mail é opcional para convites partilhados (multi-uso).
+            </DialogDescription>
+          </DialogHeader>
+          {inviteResult ? (
+            <div className="space-y-4 py-2">
+              <Alert>
+                <AlertDescription className="text-sm break-all">{inviteResult.link}</AlertDescription>
+              </Alert>
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => {
+                    void navigator.clipboard.writeText(inviteResult.link).then(
+                      () => {
+                        toast.success("Link copiado");
+                      },
+                      () => {
+                        toast.error("Não foi possível copiar");
+                      },
+                    );
+                  }}
+                >
+                  <Copy className="h-4 w-4" />
+                  Copiar link
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setInviteOpen(false);
+                    resetInviteDialog();
+                  }}
+                >
+                  Fechar
+                </Button>
+              </DialogFooter>
+            </div>
+          ) : (
+            <form onSubmit={onSubmitInvite} className="space-y-4 py-2">
+              <div className="space-y-2">
+                <label htmlFor="invite-email" className="text-sm font-medium">
+                  E-mail (opcional)
+                </label>
+                <Input
+                  id="invite-email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="Omitir para convite partilhado"
+                  className="bg-secondary border-border"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                />
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer rounded-md px-1 py-1 hover:bg-secondary/50">
+                <Checkbox
+                  checked={inviteSingleUse}
+                  onCheckedChange={(c) => setInviteSingleUse(c === true)}
+                />
+                <span className="text-sm">Uso único (single-use)</span>
+              </label>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setInviteOpen(false);
+                    resetInviteDialog();
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={createInviteMutation.isPending}>
+                  {createInviteMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Gerar convite"
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
           )}
         </DialogContent>
       </Dialog>

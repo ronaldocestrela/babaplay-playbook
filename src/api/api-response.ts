@@ -111,9 +111,10 @@ export interface Associate {
   updatedAt: string | null;
 }
 
+/** POST/PUT /api/associates — e-mail obrigatório (único no tenant); o servidor provisiona utilizador Identity. */
 export interface CreateAssociatePayload {
   name: string;
-  email: string | null;
+  email: string;
   phone: string | null;
   positionIds: string[];
 }
@@ -124,6 +125,29 @@ export type UpdateAssociatePayload = CreateAssociatePayload;
 /** PATCH /api/associates/:id/active */
 export interface UpdateAssociateActivePayload {
   isActive: boolean;
+}
+
+/** POST /api/associates/invitations (Admin ou Manager) */
+export interface CreateAssociateInvitationPayload {
+  email?: string;
+  isSingleUse?: boolean;
+}
+
+/** Resposta de POST /api/associates/invitations */
+export interface AssociateInvitationCreated {
+  token: string;
+  email: string | null;
+  isSingleUse: boolean;
+  expiresAt: string;
+  link: string;
+}
+
+/** GET /api/associates/invitations/{token} (sem campo link) */
+export interface AssociateInvitationValidation {
+  token: string;
+  email: string | null;
+  isSingleUse: boolean;
+  expiresAt: string;
 }
 
 export interface Association {

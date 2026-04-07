@@ -18,6 +18,7 @@ import Caixa from "./pages/Caixa.tsx";
 import Categorias from "./pages/Categorias.tsx";
 import Posicoes from "./pages/Posicoes.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import Convite from "./pages/Convite.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro" element={<Cadastro />} />
+            <Route path="/convite/:token" element={<Convite />} />
             <Route
               element={
                 <ProtectedRoute>

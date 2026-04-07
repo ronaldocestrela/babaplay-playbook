@@ -32,7 +32,15 @@ export function extractErrorMessage(data: unknown): string {
 }
 
 /** Config extra suportada pelo cliente (além de AxiosRequestConfig). */
-export type ApiRequestConfig = AxiosRequestConfig & { skipErrorToast?: boolean };
+export type ApiRequestConfig = AxiosRequestConfig & {
+  skipErrorToast?: boolean;
+  /** Não enviar `Authorization` (rotas anónimas, ex.: validação de convite). */
+  skipAuth?: boolean;
+  /** Não mostrar toast quando o envelope tem `success: false` (o chamador trata o erro). */
+  skipEnvelopeErrorToast?: boolean;
+  /** Em 401, não limpar sessão nem redirecionar para /login (ex.: convite público). */
+  skipAuthRedirect?: boolean;
+};
 
 const baseURL = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ?? "";
 
@@ -58,12 +66,17 @@ apiClient.interceptors.request.use((config) => {
     }
   }
 
+  if ((config as ApiRequestConfig).skipAuth) {
+    delete config.headers.Authorization;
+  }
+
   return config;
 });
 
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
     const payload = response.data;
+    const cfg = response.config as ApiRequestConfig;
     if (
       payload &&
       typeof payload === "object" &&
@@ -73,7 +86,9 @@ apiClient.interceptors.response.use(
       const apiPayload = payload as ApiResponse<unknown>;
       if (!apiPayload.success) {
         const msg = formatApiMessage(apiPayload);
-        toast.error(msg);
+        if (!cfg.skipEnvelopeErrorToast) {
+          toast.error(msg);
+        }
         return Promise.reject(new Error(msg));
       }
       (response as AxiosResponse).data = apiPayload.data;
@@ -83,7 +98,8 @@ apiClient.interceptors.response.use(
   (error: AxiosError<unknown>) => {
     const status = error.response?.status;
     const data = error.response?.data;
-    const skipToast = Boolean((error.config as ApiRequestConfig | undefined)?.skipErrorToast);
+    const errCfg = error.config as ApiRequestConfig | undefined;
+    const skipToast = Boolean(errCfg?.skipErrorToast);
 
     if (!skipToast) {
       const message = isAxiosError(error)
@@ -93,7 +109,7 @@ apiClient.interceptors.response.use(
       toast.error(message);
     }
 
-    if (status === 401) {
+    if (status === 401 && !errCfg?.skipAuthRedirect) {
       clearSessionAuth();
       if (!window.location.pathname.startsWith("/login")) {
         window.location.assign("/login");
