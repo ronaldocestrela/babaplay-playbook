@@ -16,6 +16,13 @@ export interface AuthData {
 
 export type UserType = 0 | 1 | 2;
 
+/** Valores de `userType` em POST /api/auth/register (ver docs/backend/auth-controller.md). */
+export const USER_TYPE = {
+  PlatformAdmin: 0,
+  AssociationStaff: 1,
+  Associate: 2,
+} as const satisfies Record<string, UserType>;
+
 export interface RegisterPayload {
   name: string;
   email: string;

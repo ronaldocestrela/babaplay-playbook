@@ -13,6 +13,11 @@ export function useLogin() {
   });
 }
 
+/**
+ * Registo via `POST /api/auth/register`.
+ * Respostas 400 (validação, Identity, sincronização com Associate) são tratadas pelo interceptor em
+ * `axios-instance.ts`: extrai `error` / `errors[]` do envelope e mostra `toast.error`.
+ */
 export function useRegister() {
   const { register } = useAuth();
   return useMutation({

@@ -29,8 +29,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { useCreateTenant, useCreateSubscription } from "@/hooks/use-tenants";
 import { usePlans } from "@/hooks/use-plans";
 import { cn } from "@/lib/utils";
-
-const REGISTER_USER_TYPE = 1 as const;
+import { USER_TYPE } from "@/api/api-response";
 
 const step1Schema = z.object({
   name: z.string().min(1, "Indique o nome do clube"),
@@ -47,7 +46,7 @@ const step3Schema = z
   .object({
     name: z.string().min(1, "Indique o seu nome"),
     email: z.string().min(1, "Indique o e-mail").email("E-mail inválido"),
-    password: z.string().min(1, "Indique a senha"),
+    password: z.string().min(8, "A senha deve ter pelo menos 8 caracteres"),
     confirmPassword: z.string().min(1, "Confirme a senha"),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -108,6 +107,7 @@ const Cadastro = () => {
   const [wizardData, setWizardData] = useState<WizardData | null>(null);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const navigate = useNavigate();
   const { setTenantSubdomain } = useAuth();
@@ -158,7 +158,7 @@ const Cadastro = () => {
       name: values.name.trim(),
       email: values.email.trim(),
       password: values.password,
-      userType: REGISTER_USER_TYPE,
+      userType: USER_TYPE.AssociationStaff,
     });
     navigate("/dashboard");
   }
@@ -446,13 +446,20 @@ const Cadastro = () => {
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <FormControl>
                           <Input
-                            type={showPassword ? "text" : "password"}
+                            type={showConfirmPassword ? "text" : "password"}
                             placeholder="••••••••"
-                            className="pl-10 h-12 bg-secondary border-border"
+                            className="pl-10 pr-10 h-12 bg-secondary border-border"
                             autoComplete="new-password"
                             {...field}
                           />
                         </FormControl>
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
                       </div>
                       <FormMessage />
                     </FormItem>
