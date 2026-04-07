@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { AlertTriangle, Loader2, Plus, RefreshCw } from "lucide-react";
+import { AlertTriangle, Info, Loader2, Plus } from "lucide-react";
 import type { Team } from "@/api/api-response";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,30 +11,29 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGenerateTeams, useTeamsBySession } from "@/hooks/use-teams";
 import { useSessionCheckIns } from "@/hooks/use-checkins";
+import { useAssociations } from "@/hooks/use-associations";
 
 const teamSchema = z.object({
   sessionId: z.string().min(1, "ID da sessão obrigatório"),
-  teamCount: z
-    .number()
-    .min(2, "No mínimo 2 equipes")
-    .max(20, "No máximo 20 equipes"),
 });
 
 type TeamFormValues = z.infer<typeof teamSchema>;
 
 export default function Equipas() {
   const [sessionId, setSessionId] = useState("");
+  const { data: associations } = useAssociations();
+  const playersPerTeam = associations?.[0]?.playersPerTeam ?? 5;
   const { data: checkIns, isLoading: checkInsLoading, isError: checkInsError, error: checkInsErrorObj } = useSessionCheckIns(sessionId || undefined);
   const { data: teams, isLoading: teamsLoading, isError: teamsError, error: teamsErrorObj } = useTeamsBySession(sessionId || undefined);
 
   const generateTeams = useGenerateTeams();
   const form = useForm<TeamFormValues>({
     resolver: zodResolver(teamSchema),
-    defaultValues: { sessionId: "", teamCount: 2 },
+    defaultValues: { sessionId: "" },
   });
 
   async function onSubmit(values: TeamFormValues) {
-    await generateTeams.mutateAsync(values);
+    await generateTeams.mutateAsync({ sessionId: values.sessionId });
     setSessionId(values.sessionId);
   }
 
@@ -72,6 +71,15 @@ export default function Equipas() {
         </div>
       </div>
 
+      <Alert className="mb-6 max-w-lg border-border bg-muted/30">
+        <Info className="h-4 w-4" />
+        <AlertTitle className="text-sm font-medium">Quantas equipas?</AlertTitle>
+        <AlertDescription className="text-sm text-muted-foreground">
+          O número de equipas é calculado no servidor com base nos check-ins desta sessão e em «Jogadores por equipa» na
+          página Associação (atualmente <strong>{playersPerTeam}</strong> por equipa).
+        </AlertDescription>
+      </Alert>
+
       <div className="mb-6 max-w-lg">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
@@ -83,19 +91,6 @@ export default function Equipas() {
                   <FormLabel>ID da sessão</FormLabel>
                   <FormControl>
                     <Input {...field} onChange={(e) => { field.onChange(e); setSessionId(e.target.value); }} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="teamCount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Número de equipes</FormLabel>
-                  <FormControl>
-                    <Input type="number" min={2} max={20} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -131,6 +131,7 @@ export interface Association {
   name: string;
   address: string | null;
   regulation: string | null;
+  playersPerTeam: number;
   createdAt: string;
   updatedAt: string | null;
 }
@@ -140,6 +141,7 @@ export interface UpsertAssociationPayload {
   name: string;
   address: string | null;
   regulation: string | null;
+  playersPerTeam?: number;
 }
 
 export interface CheckInSession {
@@ -186,7 +188,6 @@ export interface Team {
 
 export interface GenerateTeamsPayload {
   sessionId: string;
-  teamCount?: number;
 }
 
 export type MembershipStatus = 0 | 1 | 2;

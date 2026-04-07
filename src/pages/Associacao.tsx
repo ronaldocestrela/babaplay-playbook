@@ -31,6 +31,7 @@ const editSchema = z.object({
   name: z.string().min(1, "Indique o nome da associação"),
   address: z.string(),
   regulation: z.string(),
+  playersPerTeam: z.coerce.number().min(2, "Mínimo 2 jogadores por equipa"),
 });
 
 type EditFormValues = z.infer<typeof editSchema>;
@@ -63,13 +64,14 @@ const Associacao = () => {
       name: "",
       address: "",
       regulation: "",
+      playersPerTeam: 5,
     },
   });
 
   useEffect(() => {
     if (dialog === "closed") return;
     if (dialog === "create") {
-      form.reset({ name: "", address: "", regulation: "" });
+      form.reset({ name: "", address: "", regulation: "", playersPerTeam: 5 });
       return;
     }
     if (dialog === "edit" && association) {
@@ -77,6 +79,7 @@ const Associacao = () => {
         name: association.name,
         address: association.address ?? "",
         regulation: association.regulation ?? "",
+        playersPerTeam: association.playersPerTeam ?? 5,
       });
     }
   }, [dialog, association, form]);
@@ -86,6 +89,7 @@ const Associacao = () => {
       name: values.name.trim(),
       address: values.address.trim() || null,
       regulation: values.regulation.trim() || null,
+      playersPerTeam: values.playersPerTeam,
     };
     if (dialog === "create") {
       await upsertMutation.mutateAsync(payload);
@@ -195,6 +199,13 @@ const Associacao = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
+                <p className="text-sm font-medium text-muted-foreground">Jogadores por equipa</p>
+                <p className="mt-1">{association.playersPerTeam ?? 5}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Usado na geração automática de equipas (junto com os check-ins da sessão).
+                </p>
+              </div>
+              <div>
                 <p className="text-sm font-medium text-muted-foreground">Morada</p>
                 <p className="mt-1 whitespace-pre-wrap">{association.address?.trim() || "—"}</p>
               </div>
@@ -240,6 +251,29 @@ const Associacao = () => {
                     <FormControl>
                       <Input className="bg-secondary border-border" placeholder="Nome da associação" {...field} />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="playersPerTeam"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Jogadores por equipa</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={2}
+                        className="bg-secondary border-border"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value === "" ? "" : Number(e.target.value))}
+                        value={field.value === undefined || field.value === null ? "" : field.value}
+                      />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground">
+                      Mínimo 2. Usado para calcular quantas equipas são geradas por sessão de check-in.
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
