@@ -30,6 +30,14 @@ export interface RegisterPayload {
   userType?: UserType;
 }
 
+/** POST /api/auth/register-with-invitation (ver docs/backend/auth-controller.md). */
+export interface RegisterWithInvitationPayload {
+  invitationToken: string;
+  name: string;
+  email: string;
+  password: string;
+}
+
 export interface LoginPayload {
   email: string;
   password: string;

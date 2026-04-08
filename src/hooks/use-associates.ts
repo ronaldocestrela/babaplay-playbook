@@ -73,11 +73,14 @@ export function useCreateAssociateInvitation() {
   });
 }
 
-export function useValidateAssociateInvitation(token: string | undefined) {
+export function useValidateAssociateInvitation(
+  token: string | undefined,
+  options?: { enabled?: boolean },
+) {
   return useQuery({
     queryKey: associateKeys.invitation(token ?? ""),
     queryFn: () => associatesService.validateAssociateInvitation(token!),
-    enabled: Boolean(token),
+    enabled: Boolean(token) && (options?.enabled ?? true),
     retry: false,
   });
 }

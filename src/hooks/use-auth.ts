@@ -1,7 +1,8 @@
 import { useAuth } from "@/contexts/auth-context";
-import type { LoginPayload, RegisterPayload } from "@/api/api-response";
+import type { LoginPayload, RegisterPayload, RegisterWithInvitationPayload } from "@/api/api-response";
 import { toast } from "@/components/ui/sonner";
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 export function useLogin() {
   const { login } = useAuth();
@@ -24,6 +25,22 @@ export function useRegister() {
     mutationFn: (payload: RegisterPayload) => register(payload),
     onSuccess: () => {
       toast.success("Conta criada com sucesso");
+    },
+  });
+}
+
+/**
+ * Registo via `POST /api/auth/register-with-invitation` (convite de associado).
+ * Requer `X-Tenant-Subdomain` (ex.: query `?tenant=` no link do convite).
+ */
+export function useRegisterWithInvitation() {
+  const { registerWithInvitation } = useAuth();
+  const navigate = useNavigate();
+  return useMutation({
+    mutationFn: (payload: RegisterWithInvitationPayload) => registerWithInvitation(payload),
+    onSuccess: () => {
+      toast.success("Conta criada com sucesso");
+      void navigate("/dashboard");
     },
   });
 }

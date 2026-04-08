@@ -1,4 +1,9 @@
-import type { AuthData, LoginPayload, RegisterPayload } from "@/api/api-response";
+import type {
+  AuthData,
+  LoginPayload,
+  RegisterPayload,
+  RegisterWithInvitationPayload,
+} from "@/api/api-response";
 import { readJsonStorage, STORAGE_KEYS, clearSessionAuth, clearAuthStorage } from "@/api/storage-keys";
 import * as authService from "@/services/auth.service";
 import {
@@ -19,6 +24,7 @@ export type AuthContextValue = {
   isAuthenticated: boolean;
   login: (payload: LoginPayload) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
+  registerWithInvitation: (payload: RegisterWithInvitationPayload) => Promise<void>;
   logout: () => void;
   /** Define o tenant para `X-Tenant-Subdomain` (obrigatório antes de login/register no tenant). */
   setTenantSubdomain: (subdomain: string | null) => void;
@@ -80,6 +86,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const registerWithInvitation = useCallback(async (payload: RegisterWithInvitationPayload) => {
+    const data = await authService.registerWithInvitation(payload);
+    persistAuthData(data);
+    setState({
+      token: data.accessToken,
+      userId: data.userId,
+      roles: data.roles,
+      permissions: data.permissions,
+      tenantSubdomain: localStorage.getItem(STORAGE_KEYS.TENANT_SUBDOMAIN),
+      isAuthenticated: true,
+    });
+  }, []);
+
   const logout = useCallback(() => {
     clearSessionAuth();
     setState((prev) => ({
@@ -123,6 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: state.isAuthenticated,
       login,
       register,
+      registerWithInvitation,
       logout,
       logoutAll,
       setTenantSubdomain,
@@ -136,6 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       state.isAuthenticated,
       login,
       register,
+      registerWithInvitation,
       logout,
       logoutAll,
       setTenantSubdomain,
