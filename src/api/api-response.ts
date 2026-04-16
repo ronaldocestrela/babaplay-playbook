@@ -229,6 +229,67 @@ export interface GenerateTeamsPayload {
   sessionId: string;
 }
 
+export type MatchReportStatus = 0 | 1;
+
+export const MATCH_REPORT_STATUS = {
+  Draft: 0,
+  Finalized: 1,
+} as const satisfies Record<string, MatchReportStatus>;
+
+export interface MatchReportPlayerStat {
+  id: string;
+  associateId: string;
+  goals: number;
+  assists: number;
+  yellowCards: number;
+  redCards: number;
+  observations: string | null;
+  createdAt: string;
+  updatedAt: string | null;
+}
+
+export interface MatchReportGame {
+  id: string;
+  gameNumber: number;
+  title: string;
+  notes: string | null;
+  playerStats: MatchReportPlayerStat[];
+  createdAt: string;
+  updatedAt: string | null;
+}
+
+export interface MatchReport {
+  id: string;
+  sessionId: string;
+  notes: string | null;
+  status: MatchReportStatus;
+  finalizedAt: string | null;
+  finalizedByUserId: string | null;
+  games: MatchReportGame[];
+  createdAt: string;
+  updatedAt: string | null;
+}
+
+export interface MatchReportPlayerStatPayload {
+  associateId: string;
+  goals: number;
+  assists: number;
+  yellowCards: number;
+  redCards: number;
+  observations: string | null;
+}
+
+export interface MatchReportGamePayload {
+  title: string;
+  notes: string | null;
+  playerStats: MatchReportPlayerStatPayload[];
+}
+
+export interface UpsertMatchReportPayload {
+  notes: string | null;
+  games: MatchReportGamePayload[];
+}
+
 export type MembershipStatus = 0 | 1 | 2;
 
 export interface Membership {

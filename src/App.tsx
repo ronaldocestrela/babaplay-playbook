@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard.tsx";
 import Associacao from "./pages/Associacao.tsx";
 import CheckIns from "./pages/CheckIns.tsx";
 import Equipas from "./pages/Equipas.tsx";
+import Sumulas from "./pages/Sumulas.tsx";
 import Mensalidades from "./pages/Mensalidades.tsx";
 import Caixa from "./pages/Caixa.tsx";
 import Categorias from "./pages/Categorias.tsx";
@@ -55,6 +56,7 @@ const App = () => (
               <Route path="/associacao" element={<Associacao />} />
               <Route path="/check-ins" element={<CheckIns />} />
               <Route path="/equipas" element={<Equipas />} />
+              <Route path="/sumulas" element={<Sumulas />} />
               <Route path="/mensalidades" element={<Mensalidades />} />
               <Route path="/caixa" element={<Caixa />} />
               <Route path="/categorias" element={<Categorias />} />

@@ -13,6 +13,7 @@ import {
   Banknote,
   Tag,
   Goal,
+  ScrollText,
   LogOut,
   Menu,
 } from "lucide-react";
@@ -26,6 +27,7 @@ const navItems = [
   { to: "/associacao", label: "Associação", icon: Building2 },
   { to: "/check-ins", label: "Check-ins", icon: ClipboardList },
   { to: "/equipas", label: "Equipas", icon: UsersRound },
+  { to: "/sumulas", label: "Súmulas", icon: ScrollText },
   { to: "/mensalidades", label: "Mensalidades", icon: Wallet },
   { to: "/caixa", label: "Caixa", icon: Banknote },
   { to: "/categorias", label: "Categorias", icon: Tag },
