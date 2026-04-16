@@ -75,6 +75,13 @@ Executar testes unitários:
 npm run test
 ```
 
+Cobertura atual relevante inclui:
+
+- autorização de ownership para check-ins (`use-checkins`)
+- mensagens de erro da camada API (`extractErrorMessage`)
+- utilitários de storage/autenticação (`readJsonStorage`, `clearSessionAuth`, `clearAuthStorage`)
+- contratos de chamadas dos serviços `auth.service` e `checkins.service`
+
 Executar testes em modo observável:
 
 ```bash
